@@ -1,40 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-
-const themes = {
-  "dark-red": {
-    html: "bg-gray-900 text-white",
-    body: "bg-gray-900",
-    userMsg: "bg-green-100 p-3 rounded-lg w-fit ml-auto text-black",
-    botMsg: "bg-gray-700 p-3 rounded-lg w-fit text-white",
-    tailUser:
-      "after:absolute after:bottom-0 after:right-[-8px] after:border-t-8 after:border-l-8 after:border-transparent after:border-l-green-100",
-    tailBot:
-      "after:absolute after:bottom-0 after:left-[-8px] after:border-t-8 after:border-r-8 after:border-transparent after:border-r-gray-700",
-  },
-  "white-red": {
-    html: "bg-white text-red-700",
-    body: "bg-white",
-    userMsg: "bg-green-100 p-3 rounded-lg w-fit ml-auto text-black",
-    botMsg: "bg-gray-200 p-3 rounded-lg w-fit text-black",
-    tailUser:
-      "after:absolute after:bottom-0 after:right-[-8px] after:border-t-8 after:border-l-8 after:border-transparent after:border-l-green-100",
-    tailBot:
-      "after:absolute after:bottom-0 after:left-[-8px] after:border-t-8 after:border-r-8 after:border-transparent after:border-r-gray-200",
-  },
-  "black-red": {
-    html: "bg-black text-red-500",
-    body: "bg-black",
-    userMsg: "bg-green-100 p-3 rounded-lg w-fit ml-auto text-black",
-    botMsg: "bg-gray-800 p-3 rounded-lg w-fit text-white",
-    tailUser:
-      "after:absolute after:bottom-0 after:right-[-8px] after:border-t-8 after:border-l-8 after:border-transparent after:border-l-green-100",
-    tailBot:
-      "after:absolute after:bottom-0 after:left-[-8px] after:border-t-8 after:border-r-8 after:border-transparent after:border-r-gray-800",
-  },
-};
+import "./App.css";
 
 export default function App() {
-  const [theme, setTheme] = useState("white-red");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -48,7 +15,7 @@ export default function App() {
       setMessages([
         {
           role: "assistant",
-          content: "Hello! Welcome to AtupeleGPT. How can I assist you today? 😊",
+          content: "Hello! Welcome to AtupeleGPT. How can I assist you today?",
         },
       ]);
     }
@@ -83,6 +50,33 @@ export default function App() {
     setInput("");
     setTyping(true);
 
+    const lowered = input.toLowerCase().trim();
+    const identityQuestions = [
+      "wewe ni nani", "jina lako", "unaitwaje",
+      "who are you", "what is your name", "what's your name",
+      "qui es-tu", "comment tu t'appelles",
+      "wer bist du", "wie heißt du",
+      "¿quién eres?", "cómo te llamas"
+    ];
+
+    if (identityQuestions.some((q) => lowered.includes(q))) {
+      let reply = "Mimi ni AtupeleGPT, msaidizi wako wa kidijitali.";
+
+      if (lowered.includes("who are you") || lowered.includes("what is your name") || lowered.includes("what's your name")) {
+        reply = "I'm AtupeleGPT, your digital assistant.";
+      } else if (lowered.includes("qui es-tu") || lowered.includes("comment tu t'appelles")) {
+        reply = "Je suis AtupeleGPT, votre assistant numérique.";
+      } else if (lowered.includes("wer bist du") || lowered.includes("wie heißt du")) {
+        reply = "Ich bin AtupeleGPT, dein digitaler Assistent.";
+      } else if (lowered.includes("¿quién eres?") || lowered.includes("cómo te llamas")) {
+        reply = "Soy AtupeleGPT, tu asistente digital.";
+      }
+
+      setMessages([...newMessages, { role: "assistant", content: reply }]);
+      setTyping(false);
+      return;
+    }
+
     try {
       const response = await fetch("https://open-ai21.p.rapidapi.com/conversationllama", {
         method: "POST",
@@ -114,70 +108,78 @@ export default function App() {
   }
 
   return (
-    <div className={`${themes[theme].html} min-h-screen`}>
-      <div className="flex flex-wrap justify-center gap-4 p-4 bg-white shadow sticky top-0 z-10">
-        <button onClick={() => setTheme("dark-red")} className="px-4 py-2 bg-red-800 text-white rounded">Dark Red</button>
-        <button onClick={() => setTheme("white-red")} className="px-4 py-2 bg-white text-red-700 border border-red-700 rounded">White Red</button>
-        <button onClick={() => setTheme("black-red")} className="px-4 py-2 bg-black text-red-500 rounded">Black Red</button>
-      </div>
+    <div className="bg-[#f7f7f8] min-h-screen font-sans">
+      <div className="max-w-2xl mx-auto flex flex-col h-screen">
+        {/* Chat Area */}
+        <div
+          ref={chatBoxRef}
+          className="flex-1 overflow-y-auto px-4 py-6 space-y-4"
+        >
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`max-w-[80%] px-4 py-3 rounded-xl whitespace-pre-wrap shadow-sm ${
+                msg.role === "user"
+                  ? "bg-green-100 text-black self-end"
+                  : "bg-black text-white self-start animate-reveal"
+              }`}
+            >
+              {msg.content}
+            </div>
+          ))}
 
-      <div className={`${themes[theme].body} flex justify-center`}>
-        <div className="w-full max-w-3xl flex flex-col h-[calc(100vh-120px)]">
-          <div
-            ref={chatBoxRef}
-            className="w-full px-2 sm:px-6 py-4 space-y-4 overflow-y-auto flex-1"
+          {typing && (
+            <div className="max-w-[80%] px-4 py-3 rounded-xl bg-black text-white self-start animate-pulseBubble">
+              &nbsp;
+            </div>
+          )}
+        </div>
+
+        {/* Input Section */}
+        <div className="p-4 bg-white sticky bottom-0 border-t flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Type your message..."
+            className="flex-1 border px-4 py-3 rounded text-sm focus:outline-none"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage();
+            }}
+          />
+
+          {/* 🎤 Microphone Icon */}
+          <button
+            onClick={() =>
+              recognitionRef.current && recognitionRef.current.start()
+            }
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 text-white shadow hover:bg-gray-900 transition"
+            title="Use voice"
           >
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`relative ${
-                  msg.role === "user"
-                    ? `${themes[theme].userMsg} ${themes[theme].tailUser}`
-                    : `${themes[theme].botMsg} ${themes[theme].tailBot}`
-                }`}
-              >
-                {msg.content}
-              </div>
-            ))}
-
-            {typing && (
-              <div className={`relative ${themes[theme].botMsg} ${themes[theme].tailBot}`}>
-                <span className="animate-pulse flex gap-1">
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
-                  <span className="w-2 h-2 bg-white rounded-full"></span>
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 p-4 bg-white shadow-md sticky bottom-0">
-            <input
-              type="text"
-              placeholder="Type your message..."
-              className="flex-1 border px-4 py-3 rounded text-sm focus:outline-none"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
-              }}
-            />
-            <button
-              onClick={() =>
-                recognitionRef.current && recognitionRef.current.start()
-              }
-              className="bg-gray-300 text-black px-3 py-2 rounded"
-              title="Use voice"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
             >
-              🎤
-            </button>
-            <button
-              onClick={sendMessage}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Send
-            </button>
-          </div>
+              <path d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z" />
+              <path d="M19 11a1 1 0 10-2 0 5 5 0 01-10 0 1 1 0 10-2 0 7 7 0 0014 0z" />
+              <path
+                d="M12 17v4m-4 0h8"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          <button
+            onClick={sendMessage}
+            className="bg-black text-white px-4 py-2 rounded shadow hover:bg-gray-900"
+          >
+            Send
+          </button>
         </div>
       </div>
     </div>

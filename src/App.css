@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Bubble animation (typing effect) */
+@keyframes reveal {
+  from {
+    transform: scaleY(0.85);
+    opacity: 0.2;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+.animate-reveal {
+  animation: reveal 0.3s ease-out;
+}
+
+/* Typing indicator bubble */
+@keyframes pulseBubble {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(0.95);
+    opacity: 1;
+  }
+}
+.animate-pulseBubble {
+  animation: pulseBubble 1.2s infinite;
+}
