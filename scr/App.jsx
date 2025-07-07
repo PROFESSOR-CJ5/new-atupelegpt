@@ -142,36 +142,33 @@ export default function App() {
     <div className="bg-[#f7f7f8] min-h-screen font-sans">
       <StyleInjector />
       <div className="max-w-2xl mx-auto flex flex-col h-screen">
-        {/* 🔖 Header */}
+
+        {/* 🔖 Header with Logo */}
         <div className="bg-white p-4 text-center font-semibold text-lg border-b shadow-sm sticky top-0 z-10 flex justify-center items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="black" className="w-6 h-6">
-            <circle cx="256" cy="256" r="100" />
-          </svg>
+          <img src="https://files.catbox.moe/v92a6d.jpg" alt="Logo" className="w-6 h-6 rounded-full" />
           AtupeleGPT
         </div>
 
-        {/* 💬 Chat Messages */}
-        <div ref={chatBoxRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+        {/* 💬 Chat Box */}
+        <div ref={chatBoxRef} className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-[#f7f7f8]">
           {messages.map((msg, i) => (
             <div
               key={i}
-              className={`max-w-[80%] px-4 py-3 rounded-2xl whitespace-pre-wrap shadow-md ${
+              className={`max-w-[80%] px-4 py-3 rounded-2xl whitespace-pre-wrap shadow ${
                 msg.role === "user"
-                  ? "bg-green-100 text-black self-end"
-                  : "bg-black text-white self-start animate-reveal"
+                  ? "bg-green-100 text-black self-end ml-auto"
+                  : "bg-white text-black self-start mr-auto border"
               }`}
             >
               {msg.content}
             </div>
           ))}
           {typing && (
-            <div className="max-w-[80%] px-4 py-3 rounded-2xl bg-black text-white self-start animate-pulseBubble">
-              &nbsp;
-            </div>
+            <div className="w-6 h-6 rounded-full bg-gray-400 opacity-70 animate-pulseBubble self-start"></div>
           )}
         </div>
 
-        {/* 🧾 Input & 🎙 Button */}
+        {/* 🎙 Input Section */}
         <div className="p-4 bg-white sticky bottom-0 border-t flex gap-2 items-center">
           <input
             type="text"
@@ -201,6 +198,7 @@ export default function App() {
             Send
           </button>
         </div>
+
       </div>
     </div>
   );
